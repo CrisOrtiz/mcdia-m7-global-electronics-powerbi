@@ -1,0 +1,5 @@
+# Los CSV se guardan tal cual, sin convertir saltos de línea ni codificación
+data/*.csv binary
+
+# Archivos de Power BI
+*.pbix binary

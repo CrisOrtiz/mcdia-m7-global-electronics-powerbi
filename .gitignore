@@ -1,0 +1,43 @@
+# ===========================================================
+#  Global Electronics - Power BI (MCDIA M7 Practica 1)
+# ===========================================================
+
+# --- Copias de los datos convertidas a Excel ---------------
+# No usarlas: Excel en espanol invierte las fechas con dia <= 12.
+# El modelo lee solo los CSV originales de data/.
+data/*.xlsx
+data/*.xls
+
+# --- Power BI ----------------------------------------------
+# Archivos temporales y de bloqueo
+~$*.pbix
+*.pbix.tmp
+*.pbit.tmp
+
+# Copias de respaldo hechas a mano
+*_backup.pbix
+*_old.pbix
+*copia*.pbix
+*copy*.pbix
+
+# Si en algun momento usan el formato de proyecto (.pbip):
+# configuracion local y cache de datos de cada usuario
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# --- Office --------------------------------------------------
+~$*.xlsx
+~$*.docx
+~$*.pptx
+
+# --- Sistema operativo ----------------------------------------
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# --- Editores --------------------------------------------------
+.vscode/
+.idea/
+*.swp
