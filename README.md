@@ -20,6 +20,7 @@
 - [Transformaciones en Power Query](#transformaciones-en-power-query)
 - [Modelo de datos](#modelo-de-datos)
 - [Totales de control](#totales-de-control)
+- [Validación automática](#validación-automática)
 - [Cómo trabajar en equipo](#cómo-trabajar-en-equipo)
 
 ---
@@ -70,6 +71,10 @@ Datos de ventas de **Global Electronics**, una cadena minorista ficticia de elec
 │   └── Stores.csv
 ├── powerbi/
 │   └── MCDIA_M7_GRUPO2.pbix    # Modelo de datos
+├── scripts/
+│   └── validar_datos.py        # Validación de los CSV (ver "Validación automática")
+├── .github/workflows/
+│   └── validar-datos.yml       # Ejecuta la validación en GitHub Actions
 ├── .gitattributes              # Evita que Git modifique los CSV y el .pbix
 ├── .gitignore
 └── README.md
@@ -241,6 +246,33 @@ Además:
 - No hay ventas huérfanas: toda clave de `Fact_Sales` existe en su dimensión.
 - No hay claves duplicadas en las dimensiones.
 - Ventas Online: 13.165 líneas (todas con `Delivery Date`). Ventas en tienda: 49.719 líneas (ninguna con `Delivery Date`).
+
+---
+
+## Validación automática
+
+Cada vez que alguien sube cambios en `data/`, `powerbi/` o `scripts/`, GitHub Actions ejecuta `scripts/validar_datos.py`. El resultado aparece en la pestaña **Actions** del repositorio (✅ o ❌) y también en el commit.
+
+El script comprueba que:
+
+- Estén los 6 CSV, con sus columnas y la cantidad de filas esperada.
+- `Customers.csv` siga en Windows-1252 y el resto en UTF-8.
+- Las fechas sigan en formato `M/D/YYYY` y los precios en formato `$1,234.56`.
+- No haya claves duplicadas en las dimensiones ni ventas huérfanas.
+- `Delivery Date` aparezca solo en ventas Online.
+- Los totales de ventas y costo coincidan con los [totales de control](#totales-de-control).
+- No haya archivos de Excel en `data/` y el `.pbix` pese menos de 100 MB (límite de GitHub).
+
+Si algo falla, el mensaje indica qué archivo y qué validación. Casi siempre la causa es un CSV abierto y guardado en Excel: la solución es restaurar el original con `git checkout -- data/<archivo>.csv`.
+
+La validación revisa los **datos**, no el `.pbix`: GitHub no puede abrir Power BI Desktop. Que el modelo cargue bien se sigue comprobando con la consulta DAX de los totales de control.
+
+**Ejecutarla en tu computadora** (opcional, requiere Python):
+
+```bash
+pip install pandas
+python scripts/validar_datos.py
+```
 
 ---
 

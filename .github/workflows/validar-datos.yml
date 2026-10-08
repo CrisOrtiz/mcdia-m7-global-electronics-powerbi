@@ -1,0 +1,38 @@
+name: Validar datos
+
+# Corre cada vez que alguien sube cambios en los datos, el .pbix o el script,
+# y también se puede lanzar a mano desde la pestaña Actions.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/**"
+      - "powerbi/**"
+      - "scripts/**"
+      - ".github/workflows/validar-datos.yml"
+  pull_request:
+    paths:
+      - "data/**"
+      - "powerbi/**"
+      - "scripts/**"
+      - ".github/workflows/validar-datos.yml"
+  workflow_dispatch:
+
+jobs:
+  validar:
+    name: Validar CSV y estructura del repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install pandas
+
+      - name: Ejecutar validaciones
+        run: python scripts/validar_datos.py .

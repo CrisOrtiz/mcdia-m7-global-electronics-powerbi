@@ -1,5 +1,5 @@
 # ===========================================================
-#  Global Electronics - Power BI (MCDIA M7 Practica 1)
+#  Global Electronics - Power BI (MCDIA M7 - Grupo 2)
 # ===========================================================
 
 # --- Copias de los datos convertidas a Excel ---------------
@@ -9,26 +9,19 @@ data/*.xlsx
 data/*.xls
 
 # --- Power BI ----------------------------------------------
-# Archivos temporales y de bloqueo
-~$*.pbix
-*.pbix.tmp
-*.pbit.tmp
-
-# Copias de respaldo hechas a mano
-*_backup.pbix
-*_old.pbix
-*copia*.pbix
-*copy*.pbix
-
 # Si en algun momento usan el formato de proyecto (.pbip):
 # configuracion local y cache de datos de cada usuario
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
 
-# --- Office --------------------------------------------------
-~$*.xlsx
-~$*.docx
-~$*.pptx
+# --- Office (archivos de bloqueo mientras un documento esta abierto)
+~$*
+
+# --- Python (script de validacion) --------------------------
+__pycache__/
+*.pyc
+.venv/
+venv/
 
 # --- Sistema operativo ----------------------------------------
 Thumbs.db
