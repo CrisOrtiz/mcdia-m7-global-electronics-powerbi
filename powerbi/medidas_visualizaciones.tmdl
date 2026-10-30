@@ -1,0 +1,99 @@
+createOrReplace
+
+	ref table Fact_Sales
+
+		column Canal = IF ( Fact_Sales[StoreKey] = 0, "Online", "Tienda física" )
+			dataType: string
+			summarizeBy: none
+
+		measure 'Ventas USD' = SUMX ( Fact_Sales, Fact_Sales[Quantity] * RELATED ( Dim_Products[Unit Price USD] ) )
+			formatString: \$#,0
+			displayFolder: Ventas
+
+		measure 'Costo USD' = SUMX ( Fact_Sales, Fact_Sales[Quantity] * RELATED ( Dim_Products[Unit Cost USD] ) )
+			formatString: \$#,0
+			displayFolder: Ventas
+
+		measure 'Margen USD' = [Ventas USD] - [Costo USD]
+			formatString: \$#,0
+			displayFolder: Ventas
+
+		measure 'Margen %' = DIVIDE ( [Margen USD], [Ventas USD] )
+			formatString: 0.0%
+			displayFolder: Ventas
+
+		measure Unidades = SUM ( Fact_Sales[Quantity] )
+			formatString: #,0
+			displayFolder: Ventas
+
+		measure Pedidos = DISTINCTCOUNT ( Fact_Sales[Order Number] )
+			formatString: #,0
+			displayFolder: Ventas
+
+		measure 'Ticket Promedio' = DIVIDE ( [Ventas USD], [Pedidos] )
+			formatString: \$#,0.00
+			displayFolder: Ventas
+
+		measure 'Ventas AA' = CALCULATE ( [Ventas USD], SAMEPERIODLASTYEAR ( Dim_Date[Fecha] ) )
+			formatString: \$#,0
+			displayFolder: Tiempo
+
+		measure 'Crecimiento % YoY' = DIVIDE ( [Ventas USD] - [Ventas AA], [Ventas AA] )
+			formatString: 0.0%
+			displayFolder: Tiempo
+
+		measure 'Ventas Acumuladas' = TOTALYTD ( [Ventas USD], Dim_Date[Fecha] )
+			formatString: \$#,0
+			displayFolder: Tiempo
+
+		measure 'Productos Vendidos' = DISTINCTCOUNT ( Fact_Sales[ProductKey] )
+			formatString: #,0
+			displayFolder: Productos
+
+		measure Clientes = DISTINCTCOUNT ( Fact_Sales[CustomerKey] )
+			formatString: #,0
+			displayFolder: Clientes
+
+		measure '% Clientes Recurrentes' = DIVIDE ( COUNTROWS ( FILTER ( VALUES ( Fact_Sales[CustomerKey] ), CALCULATE ( DISTINCTCOUNT ( Fact_Sales[Order Number] ) ) > 1 ) ), [Clientes] )
+			formatString: 0.0%
+			displayFolder: Clientes
+
+		measure 'Ventas por Cliente' = DIVIDE ( [Ventas USD], [Clientes] )
+			formatString: \$#,0.00
+			displayFolder: Clientes
+
+		measure 'Pedidos por Cliente' = DIVIDE ( [Pedidos], [Clientes] )
+			formatString: #,0.00
+			displayFolder: Clientes
+
+		measure 'Unidades por Pedido' = DIVIDE ( [Unidades], [Pedidos] )
+			formatString: #,0.00
+			displayFolder: Clientes
+
+		measure 'Tiendas Activas' = CALCULATE ( DISTINCTCOUNT ( Fact_Sales[StoreKey] ), Fact_Sales[StoreKey] <> 0 )
+			formatString: #,0
+			displayFolder: Tiendas
+
+		measure 'Ventas por m2' = DIVIDE ( CALCULATE ( [Ventas USD], Dim_Stores[StoreKey] <> 0 ), SUM ( Dim_Stores[Square Meters] ) )
+			formatString: \$#,0.00
+			displayFolder: Tiendas
+
+		measure '% Ventas Online' = DIVIDE ( CALCULATE ( [Ventas USD], Fact_Sales[StoreKey] = 0 ), [Ventas USD] )
+			formatString: 0.0%
+			displayFolder: Tiendas
+
+		measure 'Días Entrega Prom' = AVERAGEX ( FILTER ( Fact_Sales, NOT ISBLANK ( Fact_Sales[Delivery Date] ) && Fact_Sales[Delivery Date] < DATE ( 3000, 1, 1 ) ), DATEDIFF ( Fact_Sales[Order Date], Fact_Sales[Delivery Date], DAY ) )
+			formatString: #,0.0
+			displayFolder: Tiendas
+
+	ref table Dim_Customers
+
+		column Edad = INT ( YEARFRAC ( Dim_Customers[Birthday], DATE ( 2021, 2, 20 ) ) )
+			dataType: int64
+			formatString: 0
+			summarizeBy: none
+
+		column 'Rango Edad' = SWITCH ( TRUE (), Dim_Customers[Edad] < 25, "18-24", Dim_Customers[Edad] < 35, "25-34", Dim_Customers[Edad] < 45, "35-44", Dim_Customers[Edad] < 55, "45-54", Dim_Customers[Edad] < 65, "55-64", "65+" )
+			dataType: string
+			summarizeBy: none
+
